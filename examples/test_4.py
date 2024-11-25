@@ -19,37 +19,31 @@ class MyApp(qtw.QWidget):
         self.contracts_model.select()
 
         self.contracts_view = qtw.QTableWidget(self)
-        self.contracts_view.setRowCount(0)  # Сбрасываем количество строк
-        self.contracts_view.setColumnCount(
-            self.contracts_model.columnCount())  # Устанавливаем количество столбцов
+        self.contracts_view.setRowCount(self.contracts_model.rowCount())  # Устанавливаем количество строк
+        self.contracts_view.setColumnCount(self.contracts_model.columnCount())  # Устанавливаем количество столбцов
 
         # Заполнение QTableWidget данными из модели
         for row in range(self.contracts_model.rowCount()):
-            self.contracts_view.insertRow(row)  # Вставляем новую строку
             for column in range(self.contracts_model.columnCount()):
                 item_data = self.contracts_model.data(self.contracts_model.index(row, column))
-                if isinstance(item_data, bool):  # Если это логическое значение
+                if column == 5:  # Если это логическое значение
                     item = qtw.QTableWidgetItem()
                     item.setCheckState(Qt.CheckState.Checked if item_data else Qt.CheckState.Unchecked)
                     item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)  # Делаем элемент чекбоксом
                 else:
                     item = qtw.QTableWidgetItem(str(item_data))  # Для остальных значений
 
-        self.contracts_view.setItem(row, column, item)
+                self.contracts_view.setItem(row, column, item)
 
         self.invoices_model = QtSql.QSqlTableModel(self)
         self.invoices_model.setTable('invoices')
         self.invoices_model.select()
 
-        # Создаем таблицы для отображения данных
-        # self.contracts_view = QtWidgets.QTableView(self)
-        # self.contracts_view.setModel(self.contracts_model)
-
         self.invoices_view = qtw.QTableView(self)
         self.invoices_view.setModel(self.invoices_model)
 
         # Устанавливаем связь
-        self.contracts_view.selectionModel().selectionChanged.connect(self.on_contract_selected)
+        self.contracts_view.itemSelectionChanged.connect(self.on_contract_selected)
 
         # Компоновка интерфейса
         layout = qtw.QVBoxLayout(self)
